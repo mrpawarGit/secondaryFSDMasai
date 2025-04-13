@@ -1,0 +1,15 @@
+.ol-list li:first-child {
+  font-weight: bold;
+}
+
+.ol-list li:first-child + li {
+  background-color: lightgray;
+}
+
+.ol-list li:nth-child(3) ~ li {
+  font-style: italic;
+}
+
+.ol-list li:hover {
+  color: red;
+}
