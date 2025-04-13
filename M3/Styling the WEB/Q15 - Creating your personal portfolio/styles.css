@@ -5,23 +5,18 @@
   box-sizing: border-box;
 }
 
-/* Base styling */
 body {
   font-family: 'Segoe UI', sans-serif;
   line-height: 1.6;
   background-color: #fff;
-  color: #333;
+  color: #222121;
   scroll-behavior: smooth;
 }
 
-/* Header/Nav */
 header {
-  background-color: #ff6347;
-  padding: 20px 0;
-  color: #fff;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
+  background-color: rgb(234, 101, 52);
+  padding: 18px;
+  color: white;
 }
 
 nav {
@@ -30,11 +25,11 @@ nav {
   align-items: center;
   max-width: 960px;
   margin: auto;
-  padding: 0 20px;
+  padding: 20px;
 }
 
 nav h1 {
-  font-size: 1.5em;
+  font-size: 30px;
 }
 
 nav ul {
@@ -53,7 +48,6 @@ nav ul li a:hover {
   text-decoration: underline;
 }
 
-/* Section Styling */
 section {
   max-width: 960px;
   margin: 40px auto;
@@ -76,7 +70,6 @@ h2 {
   border: 2px solid #ccc;
 }
 
-/* Projects */
 .project-card {
   border: 1px solid #eee;
   padding: 20px;
@@ -99,7 +92,6 @@ h2 {
   text-decoration: underline;
 }
 
-/* Contact Form */
 form {
   display: flex;
   flex-direction: column;
@@ -129,7 +121,7 @@ form button:hover {
 
 /* Footer */
 footer {
-  background-color: #ff6347;
+  background-color: rgb(234, 101, 52);
   color: white;
   text-align: center;
   padding: 20px 10px;
@@ -137,10 +129,10 @@ footer {
 }
 
 footer a {
-  color: #fff;
+  color: white;
   text-decoration: underline;
 }
 
 footer a:hover {
-  color: #000;
+  color: blue;
 }
