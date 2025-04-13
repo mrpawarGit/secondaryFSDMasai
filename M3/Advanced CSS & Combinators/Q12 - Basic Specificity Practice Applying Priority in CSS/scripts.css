@@ -1,0 +1,13 @@
+div {
+  color: blue;
+}
+
+.highlight {
+  color: red;
+}
+
+#special {
+  color: yellowgreen;
+}
+
+/* #special has the highest specificity so text will be yellowgreen */
