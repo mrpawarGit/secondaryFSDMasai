@@ -1,0 +1,91 @@
+* {
+  margin: 0;
+  padding: 0;
+  /* box-sizing: border-box; */
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.7;
+  background: rgb(240, 238, 238);
+  color: black;
+}
+
+header,
+footer {
+  background: black;
+  color: white;
+  padding: 1rem;
+  text-align: center;
+}
+
+nav ul {
+  display: flex;
+  justify-content: center;
+  list-style: none;
+  gap: 20px;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+footer a {
+  color: white;
+  text-decoration: none;
+}
+
+footer a:hover {
+  color: blue;
+}
+
+.hero {
+  background: url('https://www.indiatravelblog.com/images/IndiaTravelBlog.jpg');
+  height: 60vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-shadow: 4px 3px 0px white, 9px 8px 0px rgba(0, 0, 0, 0.15);
+}
+
+.hero h1 {
+  font-size: 2.5rem;
+}
+
+footer {
+  margin-top: 2rem;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+}
+
+.logo {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-weight: bold;
+  font-size: larger;
+  /* background-color: white; */
+  /* color: black; */
+  font-size: x-large;
+}
+
+.map {
+  text-align: center;
+  padding: 10px;
+}
+
+.map>iframe {
+  padding: 10px;
+}
+
+.about {
+  text-align: center;
+}
+
+header{
+  position: sticky;
+  top: 0;
+  /* overflow: hidden; */
+}
