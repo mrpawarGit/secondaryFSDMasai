@@ -1,11 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Contact</title>
   <link rel="stylesheet" href="CSS/styles.css">
+  <style>
+    form {
+      max-width: 600px;
+      margin: 2rem auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    input,
+    textarea {
+      padding: 8px;
+      font-size: 18px;
+      border: 1px solid black;
+      border-radius: 5px;
+    }
+
+    button[type="submit"] {
+      background: rgb(10, 88, 10);
+      color: white;
+      border: none;
+      padding: 0.75rem;
+      font-size: 1rem;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    /* #feedback {
+      margin: 2rem auto;
+      max-width: 600px;
+    } */
+
+    .message {
+      background: #f0f0f0;
+      padding: 1rem;
+      border-radius: 5px;
+      margin-bottom: 1rem;
+    }
+
+    body.dark-mode .message {
+      background: black;
+      color: white;
+    }
+
+  </style>
 </head>
+
 <body>
   <!-- navbar -->
   <header>
@@ -21,14 +68,31 @@
     <!-- <button id="dark-mode">Dark</button> -->
   </header>
 
+  <!-- Main Content -->
+  <main class="description">
+    <h2 style="text-align: center;">Contact Us</h2>
+    <form id="contactForm">
+      <input type="text" id="name" placeholder="Your Name" required />
+      <input type="email" id="email" placeholder="Your Email" required />
+      <input type="number" id="phone" placeholder="Your Phone Number" required />
+      <textarea id="message" rows="5" placeholder="Your Message" required></textarea>
+      <button type="submit">Submit</button>
+    </form>
+
+    <!-- <div id="feedback">
+      <h3>Feedback Received:</h3>
+      <div id="feedbackList"></div>
+    </div> -->
+  </main>
 
 
   <!-- footer -->
-    <footer>
-      <p>Contact: travelblog@gmail.com</p>
-      <a href="https://www.instagram.com/" target="_blank"> Instagram |</a>
-      <a href="https://www.facebook.com/" target="_blank"> Facebook </a>
-      <a href="https://in.linkedin.com/" target="_blank">| LinkedIn </a>
-    </footer>
+  <footer>
+    <p>Contact: travelblog@gmail.com</p>
+    <a href="https://www.instagram.com/" target="_blank"> Instagram |</a>
+    <a href="https://www.facebook.com/" target="_blank"> Facebook </a>
+    <a href="https://in.linkedin.com/" target="_blank">| LinkedIn </a>
+  </footer>
 </body>
+
 </html>

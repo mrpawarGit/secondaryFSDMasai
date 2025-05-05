@@ -84,8 +84,12 @@ footer {
   text-align: center;
 }
 
-header{
+header {
   position: sticky;
   top: 0;
   /* overflow: hidden; */
+}
+
+.extra-space {
+  height: 30vh;
 }

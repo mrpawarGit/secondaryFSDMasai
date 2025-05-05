@@ -1,11 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gallery</title>
   <link rel="stylesheet" href="CSS/styles.css">
+  <style>
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 1rem;
+      padding: 2rem;
+    }
+
+    .gallery-item {
+      /* position: relative; */
+      overflow: hidden;
+      border-radius: 9px;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .gallery-item:hover {
+      transform: scale(1.1);
+    }
+
+    .gallery-item::after {
+      content: attr(data-caption);
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      color: rgb(79, 2, 2);
+      text-shadow: 4px 3px 0px white, 9px 8px 0px rgba(0, 0, 0, 0.15);
+      font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+      font-weight: bold;
+      padding: 10px;
+      font-size: 1rem;
+      text-align: center;
+    }
+  </style>
 </head>
+
 <body>
   <!-- navbar -->
   <header>
@@ -21,14 +63,60 @@
     <!-- <button id="dark-mode">Dark</button> -->
   </header>
 
+  <main>
+    <section class="gallery">
+      <div class="gallery-item" data-caption="Mumbai">
+        <img
+          src="https://s7ap1.scene7.com/is/image/incredibleindia/1-bandra-worli-sea-ink-mumbai-maharashtra-attr-hero?qlt=82&ts=1727355264966"
+          alt="mumbai-india ">
+      </div>
 
+      <div class="gallery-item" data-caption="Paris">
+        <img
+          src="https://ma.visamiddleeast.com/dam/VCOM/regional/cemea/generic-cemea/travel-with-visa/destinations/paris/marquee-travel-paris-800x450.jpg"
+          alt="paris-tower">
+      </div>
+
+      <div class="gallery-item" data-caption="Tokyo">
+        <img
+          src="https://res.cloudinary.com/aenetworks/image/upload/c_fill,ar_2,w_3840,h_1920,g_auto/dpr_auto/f_auto/q_auto:eco/v1/gettyimages-1390815938?_a=BAVAZGDX0"
+          alt="japan-tokyo">
+      </div>
+
+      <div class="gallery-item" data-caption="Dubai">
+        <img src="https://cdn.britannica.com/15/189715-050-4310222B/Dubai-United-Arab-Emirates-Burj-Khalifa-top.jpg"
+          alt="dubai-uae">
+      </div>
+
+      <div class="gallery-item" data-caption="Barcelona">
+        <img
+          src="https://catalonia.com/documents/176177/209064/catalonia-trade-and-investment-barcelona-ranked-8th-best-city-in-the-world.jpg/bfab1a81-b42b-fc40-4a2d-73034301fb02?t=1717594354035"
+          alt="barca-spain">
+      </div>
+
+      <div class="gallery-item" data-caption="Rome">
+        <img src="https://img.static-kl.com/images/media/5A8A006F-0618-4245-BBC88553D651B6E2" alt="rome-itly">
+      </div>
+
+      <div class="gallery-item" data-caption="Hawaii">
+        <img src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1b/33/f4/70/caption.jpg?w=1200&h=700&s=1" alt="rome-itly">
+      </div>
+
+      <div class="gallery-item" data-caption="switzerland">
+        <img src="https://cdn.britannica.com/65/162465-050-9CDA9BC9/Alps-Switzerland.jpg" alt="rome-itly">
+      </div>
+
+    </section>
+  </main>
+  <div class="extra-space"></div>
 
   <!-- footer -->
-    <footer>
-      <p>Contact: travelblog@gmail.com</p>
-      <a href="https://www.instagram.com/" target="_blank"> Instagram |</a>
-      <a href="https://www.facebook.com/" target="_blank"> Facebook </a>
-      <a href="https://in.linkedin.com/" target="_blank">| LinkedIn </a>
-    </footer>
+  <footer>
+    <p>Contact: travelblog@gmail.com</p>
+    <a href="https://www.instagram.com/" target="_blank"> Instagram |</a>
+    <a href="https://www.facebook.com/" target="_blank"> Facebook </a>
+    <a href="https://in.linkedin.com/" target="_blank">| LinkedIn </a>
+  </footer>
 </body>
+
 </html>
