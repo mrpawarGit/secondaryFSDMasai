@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Manager</title>
+</head>
+<body>
+  
+</body>
+</html>
+
+<script>
+  async function fetchStudent(){
+    let res = await fetch('https://studentdb-ed0be-default-rtdb.asia-southeast1.firebasedatabase.app/studb.json')
+
+    let data = await res.json()
+
+    console.log(data)
+  }
+
+  fetchStudent()
+
+</script>
