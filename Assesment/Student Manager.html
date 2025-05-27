@@ -75,6 +75,8 @@
 <script>
   let API_KEY = 'https://studentdb-ed0be-default-rtdb.asia-southeast1.firebasedatabase.app/studb.json';
   let students = [];
+  let currentPage = 1;
+  let perPageStudent = 2;
 
   async function fetchStudent() {
     let res = await fetch(API_KEY);
@@ -133,7 +135,7 @@
   }
 
   function deleteStudent(id) {
-    
+
   }
 
   function editStudent(id) {  
