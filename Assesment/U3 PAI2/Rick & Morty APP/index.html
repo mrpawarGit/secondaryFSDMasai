@@ -6,6 +6,29 @@
   <title>Rick & Morty</title>
 </head>
 <body>
-  
+  <h2>Rick & Morty</h2>
+
+  <div id="filterControl">
+    <input type="text" id="search" placeholder="Enater Name...">
+    <select id="statusFilter">
+      <option value="">Select Status</option>
+      <option value="Alive">Alive</option>
+      <option value="Dead">Dead</option>
+      <option value="unknown">unknown</option>
+    </select>
+
+    <select id="speciesFilter">
+    <option value="">Select Species</option>
+    </select>
+
+    <div id="charContainer" class="card-container"></div>
+
+    <div id="pagination">
+    <button id="prev-btn" onclick="netxPage()">Previous</button>
+    <button id="next-btn">Next</button>
+    </div>
+  </div>
+
+  <script src="js/script.js"></script>
 </body>
 </html>
