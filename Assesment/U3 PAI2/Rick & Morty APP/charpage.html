@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Character Details</title>
+ 
+</head>
+<body>
+
+  <div id="charPage" class="card">
+  </div>
+
+  <script>
+    const character = JSON.parse(localStorage.getItem("selectedCharacter"));
+
+    if (!character) {
+      document.getElementById("charPage").innerHTML = "<h2>Select character</h2>";
+    } 
+    else {
+      let details = document.getElementById("charPage");
+      details.innerHTML = `
+        <h2>${character.name}</h2>
+        <img src="${character.image}" alt="${character.name}">
+        <p>Gender: ${character.gender}</p>
+        <p>Status: ${character.status}</p>
+        <p>Species: ${character.species}</p>
+        <p>Origin: ${character.origin.name}</p>
+        <p>Episodes:< ${character.episode.length}</p>
+      `;
+    }
+  </script>
+
+</body>
+</html>

@@ -84,5 +84,6 @@ function applyFilters() {
 
 // newPage
 function openCharacter(character) {
-  console.log("hello");
+  localStorage.setItem("selectedCharacter", JSON.stringify(character));
+  window.location.href = "charpage.html";
 }
