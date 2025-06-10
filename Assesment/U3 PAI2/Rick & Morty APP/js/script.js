@@ -70,11 +70,13 @@ function applyFilters() {
   pNO = 1;
   let name = document.getElementById("search").value.trim();
   let status = document.getElementById("statusFilter").value;
+  let species = document.getElementById("speciesFilter").value;
 
   let para = [];
 
   if (name) para.push(`name=${name}`);
   if (status) para.push(`status=${status}`);
+  if (species) para.push(`species=${species}`);
 
   let url = `${api}/?${para.join("&")}`;
   fetchData(url);
