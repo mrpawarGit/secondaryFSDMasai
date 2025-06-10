@@ -11,7 +11,7 @@
   </div>
 
   <script>
-    const character = JSON.parse(localStorage.getItem("selectedCharacter"));
+    let character = JSON.parse(localStorage.getItem("selectedCharacter"));
 
     if (!character) {
       document.getElementById("charPage").innerHTML = "<h2>Select character</h2>";
