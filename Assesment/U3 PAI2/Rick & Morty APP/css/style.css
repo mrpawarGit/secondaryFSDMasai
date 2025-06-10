@@ -23,3 +23,8 @@ h2 {
   gap: 20px;
   margin: 10px;
 }
+
+button {
+  width: 100px;
+  height: 30px;
+}
