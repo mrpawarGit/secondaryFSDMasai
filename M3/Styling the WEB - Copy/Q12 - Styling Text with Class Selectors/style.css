@@ -1,0 +1,13 @@
+p {
+  font-size: 16px;
+}
+
+.highlight {
+  background-color: yellow;
+  font-weight: bold;
+}
+
+.note {
+  font-style: italic;
+  color: darkgreen;
+}
