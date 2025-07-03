@@ -8,7 +8,7 @@ function Tasks() {
   const titleRef = useRef();
 
   useEffect(() => {
-    titleRef.current?.focus();
+    titleRef.current.focus();
   }, []);
 
   function handleSubmit(e) {
