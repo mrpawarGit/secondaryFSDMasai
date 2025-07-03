@@ -6,7 +6,6 @@ function Tasks() {
   const [title, setTitle] = useState("");
   const [filter, setFilter] = useState("all");
   const titleRef = useRef();
-  const [search, setSearch] = useState("");
 
   useEffect(() => {
     titleRef.current?.focus();
@@ -45,15 +44,6 @@ function Tasks() {
         <button onClick={() => setFilter("all")}>All</button>
         <button onClick={() => setFilter("completed")}>Completed</button>
         <button onClick={() => setFilter("uncompleted")}>Uncompleted</button>
-      </div>
-
-      <div>
-        <input
-          type="text"
-          placeholder="Search Task..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
       </div>
 
       {filteredTasks.length === 0 ? (
