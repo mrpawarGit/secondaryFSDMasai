@@ -6,17 +6,18 @@ function Tasks() {
   const [title, setTitle] = useState("");
   const [filter, setFilter] = useState("all");
   const titleRef = useRef();
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     titleRef.current?.focus();
   }, []);
 
-  const handleAdd = (e) => {
+  function handleSubmit(e) {
     e.preventDefault();
     if (!title.trim()) return;
     addTask(title.trim());
     setTitle("");
-  };
+  }
 
   if (!tasks) return <p>Loading tasks...</p>;
 
@@ -29,7 +30,7 @@ function Tasks() {
   return (
     <div>
       <h2>Your Tasks</h2>
-      <form onSubmit={handleAdd}>
+      <form onSubmit={handleSubmit}>
         <input
           ref={titleRef}
           value={title}
@@ -47,7 +48,12 @@ function Tasks() {
       </div>
 
       <div>
-        <input type="text" placeholder="Search Task..." />
+        <input
+          type="text"
+          placeholder="Search Task..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
       </div>
 
       {filteredTasks.length === 0 ? (
