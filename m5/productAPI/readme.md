@@ -2,8 +2,8 @@
 
 ## done with
 
-- 0. Schemas & Basic setup
-- 1. Get All Products
-- 2. Add New Product
-- 3. Delete Product by ID
-- 4. Update Product by ID
+- 1. Schemas & Basic setup
+- 2. Get All Products
+- 3. Add New Product
+- 4. Delete Product by ID
+- 5. Update Product by ID
