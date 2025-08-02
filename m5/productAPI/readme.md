@@ -7,3 +7,5 @@
 - Add New Product
 - Delete Product by ID
 - Update Product by ID
+- Get all user
+- Add new user
