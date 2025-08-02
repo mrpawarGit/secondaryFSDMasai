@@ -1,73 +1,35 @@
-const Product = require("../models/productSchema");
+const User = require("../models/userSchema");
 
-// create product
-const createProduct = async (req, res) => {
+// add
+const createUser = async (req, res) => {
   try {
-    const pro = await Product.create(req.body);
-    res.status(200).json({ msg: "Product Created", pro });
+    const newUser = await User.create(req.body);
+    res.status(201).json({
+      message: "User created successfully",
+      newUser,
+    });
   } catch (error) {
-    console.log(error);
-    res.status(404).json({ msg: "Error", err: error.message });
-  }
-};
-
-// get all products
-const getAllProducts = async (req, res) => {
-  try {
-    const all = await Product.find();
-    res.status(200).json(all);
-  } catch (error) {
-    res.status(500).json({
-      message: "Failed to fetch Products",
+    res.status(400).json({
+      message: "Error creating user",
       error: error.message,
     });
   }
 };
 
-// delete Product
-const deleteProduct = async (req, res) => {
+// get all
+const getAllUsers = async (req, res) => {
   try {
-    const { id } = req.params;
-
-    const deletedProduct = await Product.findByIdAndDelete(id);
-
-    res.status(200).json({
-      message: "Product deleted successfully",
-      deletedProduct,
-    });
+    const users = await User.find();
+    res.status(200).json(users);
   } catch (error) {
     res.status(500).json({
-      message: "Failed to delete Product",
-      error: error.message,
-    });
-  }
-};
-
-// update Product
-const updateProduct = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const updatedProduct = await Product.findByIdAndUpdate(id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-
-    res.status(200).json({
-      message: "Product updated successfully",
-      updatedProduct,
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: "Failed to Update Product",
+      message: "Failed to fetch users",
       error: error.message,
     });
   }
 };
 
 module.exports = {
-  createProduct,
-  getAllProducts,
-  deleteProduct,
-  updateProduct,
+  createUser,
+  getAllUsers,
 };

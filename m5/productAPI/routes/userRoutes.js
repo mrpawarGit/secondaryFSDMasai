@@ -5,10 +5,11 @@ const {
   deleteProduct,
   updateProduct,
 } = require("../controllers/product.controller");
+const { createUser, getAllUsers } = require("../controllers/user.controller");
 
 const router = express.Router();
 
-router.get("/", getAllProducts);
-router.post("/", createProduct);
+router.get("/", createUser);
+router.post("/", getAllUsers);
 
 module.exports = router;
