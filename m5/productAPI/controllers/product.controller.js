@@ -12,7 +12,7 @@ const createProduct = async (req, res) => {
 
 const getAllProducts = async (req, res) => {
   try {
-    const all = await Feedback.find();
+    const all = await Product.find();
     res.status(200).json(all);
   } catch (error) {
     res.status(500).json({
