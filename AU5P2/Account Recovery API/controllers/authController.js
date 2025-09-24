@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
 const saltRounds = 10;
+var validator = require("validator");
 
 // signup
 const register = async (req, res) => {
@@ -12,6 +13,11 @@ const register = async (req, res) => {
     // check if email & passwod is present
     if (!email || !password) {
       return res.status(400).json({ msg: "Email or Password is missing" });
+    }
+
+    // check if email format valid or not
+    if (!validator.isEmail(email)) {
+      return res.status(400).json({ msg: "Email not valid" });
     }
 
     const user = await UserModel.findOne({ email });
@@ -47,7 +53,8 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await UserModel.findOne({ email });
-    console.log(user);
+
+    // check if user is present or not
     if (!user) {
       res.status(400).json({ msg: "User Not Found" });
     } else {
@@ -55,6 +62,7 @@ const login = async (req, res) => {
 
       // password check
       bcrypt.compare(password, hash, function (err, result) {
+        // if result == true
         if (result) {
           var token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
           res.status(200).json({ msg: "Login Sucess", token });
