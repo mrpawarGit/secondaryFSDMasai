@@ -1,5 +1,6 @@
 const express = require("express");
 const connectDB = require("./config/db");
+const authRoute = require("./routes/authRoute");
 require("dotenv").config();
 
 const app = express();
@@ -10,6 +11,9 @@ connectDB();
 
 // parser
 app.use(express.json());
+
+// user or auth routes
+app.use("/api/auth", authRoute);
 
 // test route
 app.get("/test", (req, res) => {
