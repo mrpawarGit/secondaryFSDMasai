@@ -63,7 +63,10 @@ const login = async (req, res) => {
         }
       });
     }
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ msg: "Something went wrong", error });
+  }
 };
 
 module.exports = { register, login };
