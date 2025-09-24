@@ -2,6 +2,8 @@
 
 ## The backend API for a secure account recovery feature.
 
+---
+
 ## Technology Stack
 
 - Framework: Node.js with Express.js
