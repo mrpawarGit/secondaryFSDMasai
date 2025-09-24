@@ -13,15 +13,16 @@
 
 ---
 
-### Part 1: Basic User Authentication API (Compelted)
+### Part 1: Basic User Authentication API (Completed)
 
-- User Model:
-  -- Create a Mongoose schema for your User. It must include:
-  -- email: String, required, unique, valid email format.
-  -- password: String, required.
-  -- passwordResetToken: String.
-  -- passwordResetExpires: Date.
+- User Model
 
-- Standard Auth Routes:
-  -- POST /api/auth/register: Creates a new user. The password must be hashed using bcryptjs before saving.
-  -- POST /api/auth/login: Authenticates a user with their email and password, returning a JWT upon success.
+  - Mongoose schema for your User.
+  - email: String, required, unique, valid email format.
+  - password: String, required.
+  - passwordResetToken: String.
+  - passwordResetExpires: Date.
+
+- Standard Auth Routes
+  - POST /api/auth/register: Creates a new user. The password must be hashed using bcryptjs before saving.
+  - POST /api/auth/login: Authenticates a user with their email and password, returning a JWT upon success.
