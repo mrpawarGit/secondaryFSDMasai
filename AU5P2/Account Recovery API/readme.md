@@ -24,7 +24,7 @@
   - passwordResetExpires: Date.
 
 - Standard Auth Routes
-  - POST /api/auth/register: Creates a new user. The password must be hashed using bcryptjs before saving.
+  - POST /api/auth/register: Creates a new user with hash password using bcryptjs before saving.
   - POST /api/auth/login: Authenticates a user with their email and password, returning a JWT upon success.
 
 ---

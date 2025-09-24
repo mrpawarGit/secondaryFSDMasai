@@ -35,6 +35,7 @@ const register = async (req, res) => {
           await UserModel.create({
             email,
             password: hash,
+            passwordResetToken: "",
           });
 
           res
@@ -77,4 +78,34 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { register, login };
+// reset password
+
+const resetPass = async (req, res) => {
+  try {
+    const token = req.params.token;
+
+    // check if token is given
+    if (!token) {
+      return res.status(400).json({ msg: "Token Required" });
+    }
+
+    // check if user is present or not
+    const { email } = req.body;
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+      res.status(400).json({ msg: "User Not Found" });
+    } else {
+      var newtoken = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+      await UserModel.findOneAndUpdate({
+        email,
+        passwordResetToken: newtoken,
+      });
+      res.status(200).json({ msg: "New Token generated", newtoken });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ msg: "Something went wrong", error });
+  }
+};
+
+module.exports = { register, login, resetPass };
