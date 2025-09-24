@@ -4,9 +4,16 @@ const bcrypt = require("bcrypt");
 require("dotenv").config();
 const saltRounds = 10;
 
+// signup
 const register = async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    // check if email & passwod is present
+    if (!email || !password) {
+      return res.status(400).json({ msg: "Email or Password is missing" });
+    }
+
     const user = await UserModel.findOne({ email });
 
     // if email id alredy exits or not
@@ -18,7 +25,8 @@ const register = async (req, res) => {
         if (err) {
           res.status(400).json({ msg: "Something went wrong" });
         } else {
-          const newUser = await UserModel.create({
+          // hased pass will be saved
+          await UserModel.create({
             email,
             password: hash,
           });
@@ -34,6 +42,28 @@ const register = async (req, res) => {
   }
 };
 
-const login = async (req, res) => {};
+// login
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await UserModel.findOne({ email });
+    console.log(user);
+    if (!user) {
+      res.status(400).json({ msg: "User Not Found" });
+    } else {
+      let hash = user.password;
+
+      // password check
+      bcrypt.compare(password, hash, function (err, result) {
+        if (result) {
+          var token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+          res.status(200).json({ msg: "Login Sucess", token });
+        } else {
+          res.status(400).json({ msg: "Invalid Password" });
+        }
+      });
+    }
+  } catch (error) {}
+};
 
 module.exports = { register, login };
