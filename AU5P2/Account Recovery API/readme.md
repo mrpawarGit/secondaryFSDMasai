@@ -28,3 +28,8 @@
   - POST /api/auth/login: Authenticates a user with their email and password, returning a JWT upon success.
 
 ---
+
+Part 2: The Password Reset Flow (Core Task)
+
+- Route: POST /api/auth/forgot-password
+  - new token will be genrated
