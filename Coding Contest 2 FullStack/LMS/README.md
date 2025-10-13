@@ -277,13 +277,6 @@ Your Name - [GitHub Profile](https://github.com/mrpawarGit)
 - Bootstrap team
 - Socket.IO documentation
 
-## 📧 Contact
-
-For any queries or support, please contact:
-
-- Email: your.email@example.com
-- GitHub: [@mrpawarGit](https://github.com/mrpawarGit)
-
 ## 🐛 Known Issues
 
 - None at the moment
