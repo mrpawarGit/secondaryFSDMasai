@@ -10,6 +10,10 @@ import StudentDashboard from "./components/Courses/StudentDashboard";
 import CreateCourse from "./components/Courses/CreateCourse";
 import CourseList from "./components/Courses/CourseList";
 import CourseDetail from "./components/Courses/CourseDetail";
+import ManageLessons from "./components/Lessons/ManageLessons";
+import AddLesson from "./components/Lessons/AddLesson";
+import EditLesson from "./components/Lessons/EditLesson";
+import LessonView from "./components/Lessons/LessonView";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "./App.css";
@@ -38,6 +42,7 @@ function App() {
               <Route path="/courses" element={<CourseList />} />
               <Route path="/courses/:id" element={<CourseDetail />} />
 
+              {/* Instructor Routes */}
               <Route
                 path="/instructor-dashboard"
                 element={
@@ -55,10 +60,46 @@ function App() {
                 }
               />
               <Route
+                path="/courses/:courseId/lessons"
+                element={
+                  <ProtectedRoute allowedRoles={["instructor"]}>
+                    <ManageLessons />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/courses/:courseId/lessons/add"
+                element={
+                  <ProtectedRoute allowedRoles={["instructor"]}>
+                    <AddLesson />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/lessons/:lessonId/edit"
+                element={
+                  <ProtectedRoute allowedRoles={["instructor"]}>
+                    <EditLesson />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Student Routes */}
+              <Route
                 path="/student-dashboard"
                 element={
                   <ProtectedRoute allowedRoles={["student"]}>
                     <StudentDashboard />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Shared Protected Routes */}
+              <Route
+                path="/lessons/:lessonId"
+                element={
+                  <ProtectedRoute allowedRoles={["instructor", "student"]}>
+                    <LessonView />
                   </ProtectedRoute>
                 }
               />

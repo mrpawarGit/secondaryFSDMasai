@@ -10,16 +10,19 @@ import {
   Alert,
   Spinner,
   ListGroup,
+  Accordion,
 } from "react-bootstrap";
 import {
   getCourseById,
   enrollInCourse,
   unenrollFromCourse,
 } from "../../services/courseService";
+import { getLessonsByCourse } from "../../services/lessonService";
 import { AuthContext } from "../../context/AuthContext";
 
 const CourseDetail = () => {
   const [course, setCourse] = useState(null);
+  const [lessons, setLessons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
@@ -34,8 +37,19 @@ const CourseDetail = () => {
 
   const fetchCourse = async () => {
     try {
-      const data = await getCourseById(id);
-      setCourse(data);
+      const courseData = await getCourseById(id);
+      setCourse(courseData);
+
+      // If user is enrolled or is the instructor, fetch lessons
+      const isEnrolled = courseData.students?.some(
+        (student) => student._id === user?._id
+      );
+      const isInstructor = courseData.instructor?._id === user?._id;
+
+      if (isEnrolled || isInstructor) {
+        const lessonsData = await getLessonsByCourse(id);
+        setLessons(lessonsData);
+      }
     } catch (err) {
       setError(err.response?.data?.message || "Failed to fetch course");
     } finally {
@@ -52,7 +66,7 @@ const CourseDetail = () => {
     setActionLoading(true);
     try {
       await enrollInCourse(id);
-      fetchCourse();
+      fetchCourse(); // Refresh to show lessons
     } catch (err) {
       setError(err.response?.data?.message || "Failed to enroll");
     } finally {
@@ -64,6 +78,7 @@ const CourseDetail = () => {
     setActionLoading(true);
     try {
       await unenrollFromCourse(id);
+      setLessons([]); // Clear lessons
       fetchCourse();
     } catch (err) {
       setError(err.response?.data?.message || "Failed to unenroll");
@@ -72,10 +87,15 @@ const CourseDetail = () => {
     }
   };
 
+  const handleLessonClick = (lessonId) => {
+    navigate(`/lessons/${lessonId}`);
+  };
+
   const isEnrolled = course?.students?.some(
     (student) => student._id === user?._id
   );
   const isInstructor = course?.instructor?._id === user?._id;
+  const canViewLessons = isEnrolled || isInstructor;
 
   if (loading) {
     return (
@@ -95,7 +115,11 @@ const CourseDetail = () => {
 
   return (
     <Container className="mt-5">
-      {error && <Alert variant="danger">{error}</Alert>}
+      {error && (
+        <Alert variant="danger" dismissible onClose={() => setError("")}>
+          {error}
+        </Alert>
+      )}
 
       <Row>
         <Col lg={8}>
@@ -119,23 +143,86 @@ const CourseDetail = () => {
                 Instructor: {course.instructor?.name}
               </p>
 
-              <Card.Text>{course.description}</Card.Text>
+              <Card.Text className="mb-4">{course.description}</Card.Text>
 
-              <div className="mt-4">
-                <h5>Course Content</h5>
-                {course.lessons?.length > 0 ? (
-                  <ListGroup>
-                    {course.lessons.map((lesson, index) => (
-                      <ListGroup.Item key={lesson._id}>
-                        <i className="bi bi-play-circle me-2"></i>
-                        Lesson {index + 1}: {lesson.title}
-                      </ListGroup.Item>
+              <hr />
+
+              <h4 className="mb-3">
+                <i className="bi bi-play-circle me-2"></i>
+                Course Content
+              </h4>
+
+              {canViewLessons ? (
+                lessons.length > 0 ? (
+                  <Accordion defaultActiveKey="0">
+                    {lessons.map((lesson, index) => (
+                      <Accordion.Item
+                        eventKey={index.toString()}
+                        key={lesson._id}
+                      >
+                        <Accordion.Header>
+                          <div className="d-flex align-items-center w-100">
+                            <Badge bg="secondary" className="me-3">
+                              {index + 1}
+                            </Badge>
+                            <div className="flex-grow-1">
+                              <strong>{lesson.title}</strong>
+                              <br />
+                              <small className="text-muted">
+                                <i className="bi bi-clock me-1"></i>
+                                {lesson.duration}
+                              </small>
+                            </div>
+                          </div>
+                        </Accordion.Header>
+                        <Accordion.Body>
+                          <p className="mb-3">{lesson.description}</p>
+
+                          {lesson.resources && lesson.resources.length > 0 && (
+                            <div className="mb-3">
+                              <strong>Resources:</strong>
+                              <ul className="list-unstyled mt-2">
+                                {lesson.resources.map((resource, idx) => (
+                                  <li key={idx}>
+                                    <i className="bi bi-file-earmark-text me-2"></i>
+                                    <a
+                                      href={resource.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      {resource.title}
+                                    </a>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            onClick={() => handleLessonClick(lesson._id)}
+                          >
+                            <i className="bi bi-play-fill me-2"></i>
+                            Watch Lesson
+                          </Button>
+                        </Accordion.Body>
+                      </Accordion.Item>
                     ))}
-                  </ListGroup>
+                  </Accordion>
                 ) : (
-                  <Alert variant="info">No lessons added yet</Alert>
-                )}
-              </div>
+                  <Alert variant="info">
+                    <i className="bi bi-info-circle me-2"></i>
+                    No lessons added yet.{" "}
+                    {isInstructor && 'Click "Manage Lessons" to add content.'}
+                  </Alert>
+                )
+              ) : (
+                <Alert variant="warning">
+                  <i className="bi bi-lock-fill me-2"></i>
+                  Enroll in this course to view lessons
+                </Alert>
+              )}
             </Card.Body>
           </Card>
         </Col>
@@ -147,17 +234,34 @@ const CourseDetail = () => {
 
               <div className="mb-3">
                 <small className="text-muted d-block">Enrolled Students</small>
-                <strong>{course.students?.length || 0}</strong>
+                <strong>
+                  <i className="bi bi-people-fill me-2"></i>
+                  {course.students?.length || 0}
+                </strong>
               </div>
 
               <div className="mb-3">
                 <small className="text-muted d-block">Total Lessons</small>
-                <strong>{course.lessons?.length || 0}</strong>
+                <strong>
+                  <i className="bi bi-play-circle me-2"></i>
+                  {lessons.length || 0}
+                </strong>
               </div>
 
               <div className="mb-3">
                 <small className="text-muted d-block">Level</small>
-                <strong>{course.level}</strong>
+                <strong>
+                  <i className="bi bi-bar-chart me-2"></i>
+                  {course.level}
+                </strong>
+              </div>
+
+              <div className="mb-3">
+                <small className="text-muted d-block">Category</small>
+                <strong>
+                  <i className="bi bi-tag me-2"></i>
+                  {course.category}
+                </strong>
               </div>
 
               <hr />
@@ -169,6 +273,7 @@ const CourseDetail = () => {
                     className="w-100 mb-2"
                     onClick={() => navigate(`/courses/${id}/edit`)}
                   >
+                    <i className="bi bi-pencil me-2"></i>
                     Edit Course
                   </Button>
                   <Button
@@ -176,23 +281,40 @@ const CourseDetail = () => {
                     className="w-100"
                     onClick={() => navigate(`/courses/${id}/lessons`)}
                   >
+                    <i className="bi bi-list-ul me-2"></i>
                     Manage Lessons
                   </Button>
                 </>
               ) : user?.role === "student" ? (
                 isEnrolled ? (
                   <>
-                    <Button variant="success" className="w-100 mb-2" disabled>
+                    <Alert variant="success" className="mb-3">
                       <i className="bi bi-check-circle me-2"></i>
-                      Enrolled
-                    </Button>
+                      You are enrolled in this course
+                    </Alert>
                     <Button
                       variant="outline-danger"
                       className="w-100"
                       onClick={handleUnenroll}
                       disabled={actionLoading}
                     >
-                      {actionLoading ? "Processing..." : "Unenroll"}
+                      {actionLoading ? (
+                        <>
+                          <Spinner
+                            as="span"
+                            animation="border"
+                            size="sm"
+                            role="status"
+                            className="me-2"
+                          />
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <i className="bi bi-x-circle me-2"></i>
+                          Unenroll from Course
+                        </>
+                      )}
                     </Button>
                   </>
                 ) : (
@@ -202,7 +324,23 @@ const CourseDetail = () => {
                     onClick={handleEnroll}
                     disabled={actionLoading}
                   >
-                    {actionLoading ? "Processing..." : "Enroll Now"}
+                    {actionLoading ? (
+                      <>
+                        <Spinner
+                          as="span"
+                          animation="border"
+                          size="sm"
+                          role="status"
+                          className="me-2"
+                        />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <i className="bi bi-book me-2"></i>
+                        Enroll Now
+                      </>
+                    )}
                   </Button>
                 )
               ) : (
@@ -211,6 +349,7 @@ const CourseDetail = () => {
                   className="w-100"
                   onClick={() => navigate("/login")}
                 >
+                  <i className="bi bi-box-arrow-in-right me-2"></i>
                   Login to Enroll
                 </Button>
               )}
