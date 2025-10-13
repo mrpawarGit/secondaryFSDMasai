@@ -242,8 +242,8 @@ Password: password123
 - [x] Authentication & Authorization
 - [x] Course Management
 - [x] Lesson Management
-- [ ] Real-time features with Socket.IO
-- [ ] Comment system
+- [x] Real-time features with Socket.IO
+- [x] Comment system
 - [ ] Search and filtering
 - [ ] Progress tracking
 - [ ] Activity feed
