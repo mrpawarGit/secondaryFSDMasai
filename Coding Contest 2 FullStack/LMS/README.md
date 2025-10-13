@@ -66,9 +66,9 @@ A full-stack real-time Learning Management System built with the MERN stack, ena
 
 Before running this project, make sure you have the following installed:
 
-- **Node.js** (v16 or higher)
-- **npm** or **yarn**
-- **MongoDB** (v4.4 or higher)
+- **Node.js**
+- **npm**
+- **MongoDB**
 - **Git**
 
 ## 🔧 Installation & Setup
@@ -76,7 +76,7 @@ Before running this project, make sure you have the following installed:
 ### 1. Clone the Repository
 
 ```
-git clone <your-repo-url>
+git clone <repo-url>
 cd collaborative-lms
 ```
 
