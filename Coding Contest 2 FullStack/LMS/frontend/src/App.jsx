@@ -5,27 +5,14 @@ import Footer from "./components/Layout/Footer";
 import Login from "./components/Auth/Login";
 import Signup from "./components/Auth/Signup";
 import ProtectedRoute from "./components/ProtectedRoute";
+import InstructorDashboard from "./components/Courses/InstructorDashboard";
+import StudentDashboard from "./components/Courses/StudentDashboard";
+import CreateCourse from "./components/Courses/CreateCourse";
+import CourseList from "./components/Courses/CourseList";
+import CourseDetail from "./components/Courses/CourseDetail";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "./App.css";
-
-// Temporary dashboard components
-const InstructorDashboard = () => (
-  <div className="container mt-5">
-    <h2>Instructor Dashboard</h2>
-    <p>
-      Welcome to the instructor dashboard. Course management features coming
-      soon!
-    </p>
-  </div>
-);
-
-const StudentDashboard = () => (
-  <div className="container mt-5">
-    <h2>Student Dashboard</h2>
-    <p>Welcome to the student dashboard. Enrolled courses will appear here!</p>
-  </div>
-);
 
 const Home = () => (
   <div className="container mt-5 text-center">
@@ -48,11 +35,22 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/courses" element={<CourseList />} />
+              <Route path="/courses/:id" element={<CourseDetail />} />
+
               <Route
                 path="/instructor-dashboard"
                 element={
                   <ProtectedRoute allowedRoles={["instructor"]}>
                     <InstructorDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/courses/create"
+                element={
+                  <ProtectedRoute allowedRoles={["instructor"]}>
+                    <CreateCourse />
                   </ProtectedRoute>
                 }
               />
