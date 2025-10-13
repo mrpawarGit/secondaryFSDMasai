@@ -241,7 +241,7 @@ Password: password123
 - [x] Project setup and structure
 - [x] Authentication & Authorization
 - [x] Course Management
-- [ ] Lesson Management
+- [x] Lesson Management
 - [ ] Real-time features with Socket.IO
 - [ ] Comment system
 - [ ] Search and filtering
