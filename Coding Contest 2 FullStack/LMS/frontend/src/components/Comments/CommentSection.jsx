@@ -1,13 +1,5 @@
 import { useState, useEffect, useContext } from "react";
-import {
-  Card,
-  Form,
-  Button,
-  ListGroup,
-  Alert,
-  Badge,
-  Dropdown,
-} from "react-bootstrap";
+import { Card, Form, Button, Alert, Badge } from "react-bootstrap";
 import { SocketContext } from "../../context/SocketContext";
 import { AuthContext } from "../../context/AuthContext";
 import {
@@ -21,6 +13,7 @@ const CommentSection = ({ lessonId, courseInstructorId }) => {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [replyTo, setReplyTo] = useState(null);
+  const [replyToName, setReplyToName] = useState("");
   const [editingComment, setEditingComment] = useState(null);
   const [editMessage, setEditMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -130,6 +123,7 @@ const CommentSection = ({ lessonId, courseInstructorId }) => {
       await addComment(lessonId, newComment, replyTo);
       setNewComment("");
       setReplyTo(null);
+      setReplyToName("");
     } catch (err) {
       setError(err.response?.data?.message || "Failed to add comment");
     } finally {
@@ -170,6 +164,16 @@ const CommentSection = ({ lessonId, courseInstructorId }) => {
     setEditMessage("");
   };
 
+  const startReply = (comment) => {
+    setReplyTo(comment._id);
+    setReplyToName(comment.user?.name);
+  };
+
+  const cancelReply = () => {
+    setReplyTo(null);
+    setReplyToName("");
+  };
+
   const formatTimestamp = (timestamp) => {
     const date = new Date(timestamp);
     const now = new Date();
@@ -183,6 +187,17 @@ const CommentSection = ({ lessonId, courseInstructorId }) => {
     if (diffHours < 24) return `${diffHours}h ago`;
     if (diffDays < 7) return `${diffDays}d ago`;
     return date.toLocaleDateString();
+  };
+
+  // Calculate total comments including replies
+  const getTotalComments = () => {
+    let total = comments.length;
+    comments.forEach((comment) => {
+      if (comment.replies && comment.replies.length > 0) {
+        total += comment.replies.length;
+      }
+    });
+    return total;
   };
 
   // Check if current user can delete a comment
@@ -200,15 +215,6 @@ const CommentSection = ({ lessonId, courseInstructorId }) => {
     // Instructor can delete any comment in their course
     const isInstructor = String(currentUserId) === String(courseInstructorId);
 
-    console.log("Delete Check:", {
-      commentUserId: commentUserId,
-      currentUserId: currentUserId,
-      courseInstructorId: courseInstructorId,
-      isOwner,
-      isInstructor,
-      canDelete: isOwner || isInstructor,
-    });
-
     return isOwner || isInstructor;
   };
 
@@ -224,12 +230,6 @@ const CommentSection = ({ lessonId, courseInstructorId }) => {
     // Only the comment owner can edit
     const isOwner = String(commentUserId) === String(currentUserId);
 
-    console.log("Edit Check:", {
-      commentUserId: commentUserId,
-      currentUserId: currentUserId,
-      isOwner,
-    });
-
     return isOwner;
   };
 
@@ -238,7 +238,7 @@ const CommentSection = ({ lessonId, courseInstructorId }) => {
     const showDelete = canDeleteComment(comment);
 
     return (
-      <div className={`${isReply ? "ms-4 mt-2" : ""}`}>
+      <div className={`${isReply ? "ms-4 mt-2 border-start ps-3" : ""}`}>
         <div className="d-flex align-items-start mb-2">
           <div className="flex-grow-1">
             <div className="d-flex align-items-center mb-1">
@@ -269,12 +269,15 @@ const CommentSection = ({ lessonId, courseInstructorId }) => {
                   value={editMessage}
                   onChange={(e) => setEditMessage(e.target.value)}
                   className="mb-2"
+                  autoFocus
                 />
                 <div className="d-flex gap-2">
                   <Button size="sm" variant="primary" type="submit">
+                    <i className="bi bi-check-lg me-1"></i>
                     Save
                   </Button>
                   <Button size="sm" variant="secondary" onClick={cancelEdit}>
+                    <i className="bi bi-x-lg me-1"></i>
                     Cancel
                   </Button>
                 </div>
@@ -288,7 +291,7 @@ const CommentSection = ({ lessonId, courseInstructorId }) => {
                       variant="link"
                       size="sm"
                       className="p-0 text-decoration-none"
-                      onClick={() => setReplyTo(comment._id)}
+                      onClick={() => startReply(comment)}
                     >
                       <i className="bi bi-reply me-1"></i>
                       Reply
@@ -328,7 +331,7 @@ const CommentSection = ({ lessonId, courseInstructorId }) => {
 
         {/* Render replies */}
         {comment.replies && comment.replies.length > 0 && (
-          <div className="mt-2">
+          <div className="mt-3">
             {comment.replies.map((reply) => (
               <CommentItem key={reply._id} comment={reply} isReply={true} />
             ))}
@@ -340,11 +343,17 @@ const CommentSection = ({ lessonId, courseInstructorId }) => {
 
   return (
     <Card className="mt-4">
-      <Card.Header>
-        <h5 className="mb-0">
-          <i className="bi bi-chat-left-text me-2"></i>
-          Discussion ({comments.length})
-        </h5>
+      <Card.Header className="bg-light">
+        <div className="d-flex justify-content-between align-items-center">
+          <h5 className="mb-0">
+            <i className="bi bi-chat-left-text me-2"></i>
+            Discussion
+          </h5>
+          <Badge bg="primary" pill>
+            {getTotalComments()}{" "}
+            {getTotalComments() === 1 ? "comment" : "comments"}
+          </Badge>
+        </div>
       </Card.Header>
       <Card.Body>
         {error && (
@@ -359,12 +368,12 @@ const CommentSection = ({ lessonId, courseInstructorId }) => {
             <Alert
               variant="info"
               dismissible
-              onClose={() => setReplyTo(null)}
+              onClose={cancelReply}
               className="py-2"
             >
               <small>
                 <i className="bi bi-reply me-1"></i>
-                Replying to comment...
+                Replying to <strong>{replyToName}</strong>
               </small>
             </Alert>
           )}
@@ -372,7 +381,11 @@ const CommentSection = ({ lessonId, courseInstructorId }) => {
             <Form.Control
               as="textarea"
               rows={3}
-              placeholder="Add a comment..."
+              placeholder={
+                replyTo
+                  ? `Reply to ${replyToName}...`
+                  : "Add a comment to the discussion..."
+              }
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               disabled={loading}
@@ -397,7 +410,7 @@ const CommentSection = ({ lessonId, courseInstructorId }) => {
               ) : (
                 <>
                   <i className="bi bi-send me-1"></i>
-                  Post Comment
+                  {replyTo ? "Post Reply" : "Post Comment"}
                 </>
               )}
             </Button>
@@ -405,7 +418,7 @@ const CommentSection = ({ lessonId, courseInstructorId }) => {
               <Button
                 variant="outline-secondary"
                 size="sm"
-                onClick={() => setReplyTo(null)}
+                onClick={cancelReply}
               >
                 Cancel Reply
               </Button>
@@ -413,16 +426,21 @@ const CommentSection = ({ lessonId, courseInstructorId }) => {
           </div>
         </Form>
 
+        <hr />
+
         {/* Comments List */}
         {comments.length === 0 ? (
-          <Alert variant="info" className="mb-0">
+          <Alert variant="info" className="mb-0 text-center">
             <i className="bi bi-chat-dots me-2"></i>
             No comments yet. Be the first to start the discussion!
           </Alert>
         ) : (
           <div>
             {comments.map((comment) => (
-              <div key={comment._id} className="border-bottom pb-3 mb-3">
+              <div
+                key={comment._id}
+                className="border-bottom pb-3 mb-3 last:border-0"
+              >
                 <CommentItem comment={comment} />
               </div>
             ))}

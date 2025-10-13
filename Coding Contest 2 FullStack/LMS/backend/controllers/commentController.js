@@ -129,14 +129,23 @@ const deleteComment = async (req, res) => {
     const isInstructor =
       course.instructor.toString() === req.user._id.toString();
 
+    // DELETION RULE: Only comment owner OR course instructor can delete
     if (!isOwner && !isInstructor) {
       return res.status(403).json({
         message: "Not authorized to delete this comment",
       });
     }
 
-    // Delete all replies to this comment
-    await Comment.deleteMany({ parentComment: commentId });
+    // Delete all replies to this comment recursively
+    const deleteReplies = async (commentId) => {
+      const replies = await Comment.find({ parentComment: commentId });
+      for (const reply of replies) {
+        await deleteReplies(reply._id); // Recursively delete nested replies
+        await reply.deleteOne();
+      }
+    };
+
+    await deleteReplies(commentId);
 
     // Remove from parent's replies array if this is a reply
     if (comment.parentComment) {
@@ -145,6 +154,7 @@ const deleteComment = async (req, res) => {
       });
     }
 
+    // Delete the comment itself
     await comment.deleteOne();
 
     // Emit real-time event
@@ -176,7 +186,7 @@ const updateComment = async (req, res) => {
       return res.status(404).json({ message: "Comment not found" });
     }
 
-    // Check if user is comment owner
+    // Check if user is comment owner (ONLY owner can edit)
     if (comment.user.toString() !== req.user._id.toString()) {
       return res.status(403).json({
         message: "Not authorized to update this comment",
@@ -193,7 +203,7 @@ const updateComment = async (req, res) => {
     io.to(`lesson-${comment.lesson}`).emit("update-comment", comment);
 
     res.json(comment);
-  } catch (error) {
+  } catch (err) {
     console.error(error);
     res.status(500).json({ message: "Server error", error: error.message });
   }

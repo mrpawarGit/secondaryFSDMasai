@@ -30,7 +30,7 @@ const commentSchema = new mongoose.Schema(
     ],
   },
   {
-    timestamps: true,
+    timestamps: true, // This automatically adds createdAt and updatedAt
   }
 );
 
