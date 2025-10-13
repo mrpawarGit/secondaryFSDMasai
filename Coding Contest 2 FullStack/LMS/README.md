@@ -244,8 +244,8 @@ Password: password123
 - [x] Lesson Management
 - [x] Real-time features with Socket.IO
 - [x] Comment system
-- [ ] Search and filtering
-- [ ] Progress tracking
+- [x] Search and filtering
+- [x] Progress tracking
 - [ ] Activity feed
 - [ ] File uploads
 - [ ] Email notifications
