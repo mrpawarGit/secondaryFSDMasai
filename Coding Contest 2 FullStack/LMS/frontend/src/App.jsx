@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import { SocketProvider } from "./context/SocketContext";
 import NavigationBar from "./components/Layout/Navbar";
 import Footer from "./components/Layout/Footer";
 import Login from "./components/Auth/Login";
@@ -14,6 +15,7 @@ import ManageLessons from "./components/Lessons/ManageLessons";
 import AddLesson from "./components/Lessons/AddLesson";
 import EditLesson from "./components/Lessons/EditLesson";
 import LessonView from "./components/Lessons/LessonView";
+import NotificationToast from "./components/Common/NotificationToast";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "./App.css";
@@ -30,85 +32,88 @@ const Home = () => (
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <div className="d-flex flex-column min-vh-100">
-          <NavigationBar />
+      <SocketProvider>
+        <Router>
+          <div className="d-flex flex-column min-vh-100">
+            <NavigationBar />
+            <NotificationToast />
 
-          <main className="flex-fill">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/courses" element={<CourseList />} />
-              <Route path="/courses/:id" element={<CourseDetail />} />
+            <main className="flex-fill">
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/courses" element={<CourseList />} />
+                <Route path="/courses/:id" element={<CourseDetail />} />
 
-              {/* Instructor Routes */}
-              <Route
-                path="/instructor-dashboard"
-                element={
-                  <ProtectedRoute allowedRoles={["instructor"]}>
-                    <InstructorDashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/courses/create"
-                element={
-                  <ProtectedRoute allowedRoles={["instructor"]}>
-                    <CreateCourse />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/courses/:courseId/lessons"
-                element={
-                  <ProtectedRoute allowedRoles={["instructor"]}>
-                    <ManageLessons />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/courses/:courseId/lessons/add"
-                element={
-                  <ProtectedRoute allowedRoles={["instructor"]}>
-                    <AddLesson />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/lessons/:lessonId/edit"
-                element={
-                  <ProtectedRoute allowedRoles={["instructor"]}>
-                    <EditLesson />
-                  </ProtectedRoute>
-                }
-              />
+                {/* Instructor Routes */}
+                <Route
+                  path="/instructor-dashboard"
+                  element={
+                    <ProtectedRoute allowedRoles={["instructor"]}>
+                      <InstructorDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/courses/create"
+                  element={
+                    <ProtectedRoute allowedRoles={["instructor"]}>
+                      <CreateCourse />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/courses/:courseId/lessons"
+                  element={
+                    <ProtectedRoute allowedRoles={["instructor"]}>
+                      <ManageLessons />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/courses/:courseId/lessons/add"
+                  element={
+                    <ProtectedRoute allowedRoles={["instructor"]}>
+                      <AddLesson />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/lessons/:lessonId/edit"
+                  element={
+                    <ProtectedRoute allowedRoles={["instructor"]}>
+                      <EditLesson />
+                    </ProtectedRoute>
+                  }
+                />
 
-              {/* Student Routes */}
-              <Route
-                path="/student-dashboard"
-                element={
-                  <ProtectedRoute allowedRoles={["student"]}>
-                    <StudentDashboard />
-                  </ProtectedRoute>
-                }
-              />
+                {/* Student Routes */}
+                <Route
+                  path="/student-dashboard"
+                  element={
+                    <ProtectedRoute allowedRoles={["student"]}>
+                      <StudentDashboard />
+                    </ProtectedRoute>
+                  }
+                />
 
-              {/* Shared Protected Routes */}
-              <Route
-                path="/lessons/:lessonId"
-                element={
-                  <ProtectedRoute allowedRoles={["instructor", "student"]}>
-                    <LessonView />
-                  </ProtectedRoute>
-                }
-              />
-            </Routes>
-          </main>
+                {/* Shared Protected Routes */}
+                <Route
+                  path="/lessons/:lessonId"
+                  element={
+                    <ProtectedRoute allowedRoles={["instructor", "student"]}>
+                      <LessonView />
+                    </ProtectedRoute>
+                  }
+                />
+              </Routes>
+            </main>
 
-          <Footer />
-        </div>
-      </Router>
+            <Footer />
+          </div>
+        </Router>
+      </SocketProvider>
     </AuthProvider>
   );
 }

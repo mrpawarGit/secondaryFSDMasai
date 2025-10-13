@@ -47,6 +47,10 @@ const addLesson = async (req, res) => {
     course.lessons.push(lesson._id);
     await course.save();
 
+    // Emit real-time event
+    const io = req.app.get("io");
+    io.to(`course-${courseId}`).emit("lesson-added", lesson);
+
     res.status(201).json(lesson);
   } catch (error) {
     console.error(error);
@@ -165,6 +169,10 @@ const updateLesson = async (req, res) => {
 
     const updatedLesson = await lesson.save();
 
+    // Emit real-time event
+    const io = req.app.get("io");
+    io.to(`course-${lesson.course._id}`).emit("lesson-updated", updatedLesson);
+
     res.json(updatedLesson);
   } catch (error) {
     console.error(error);
@@ -214,6 +222,10 @@ const deleteLesson = async (req, res) => {
       await remainingLessons[i].save();
     }
 
+    // Emit real-time event
+    const io = req.app.get("io");
+    io.to(`course-${course._id}`).emit("lesson-deleted", req.params.id);
+
     res.json({ message: "Lesson deleted successfully" });
   } catch (error) {
     console.error(error);
@@ -255,6 +267,10 @@ const reorderLessons = async (req, res) => {
 
     // Get updated lessons
     const lessons = await Lesson.find({ course: courseId }).sort({ order: 1 });
+
+    // Emit real-time event
+    const io = req.app.get("io");
+    io.to(`course-${courseId}`).emit("lessons-reordered", lessons);
 
     res.json({ message: "Lessons reordered successfully", lessons });
   } catch (error) {

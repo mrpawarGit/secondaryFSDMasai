@@ -19,6 +19,7 @@ import {
 } from "../../services/courseService";
 import { getLessonsByCourse } from "../../services/lessonService";
 import { AuthContext } from "../../context/AuthContext";
+import { SocketContext } from "../../context/SocketContext";
 
 const CourseDetail = () => {
   const [course, setCourse] = useState(null);
@@ -26,6 +27,7 @@ const CourseDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
+  const { socket, joinCourse, leaveCourse } = useContext(SocketContext);
 
   const { id } = useParams();
   const { user } = useContext(AuthContext);
@@ -33,7 +35,43 @@ const CourseDetail = () => {
 
   useEffect(() => {
     fetchCourse();
-  }, [id]);
+
+    if (socket && id) {
+      joinCourse(id);
+
+      // Listen for lesson added
+      socket.on("lesson-added", (newLesson) => {
+        setLessons((prev) => [...prev, newLesson]);
+      });
+
+      // Listen for lesson updated
+      socket.on("lesson-updated", (updatedLesson) => {
+        setLessons((prev) =>
+          prev.map((l) => (l._id === updatedLesson._id ? updatedLesson : l))
+        );
+      });
+
+      // Listen for lesson deleted
+      socket.on("lesson-deleted", (lessonId) => {
+        setLessons((prev) => prev.filter((l) => l._id !== lessonId));
+      });
+
+      // Listen for lessons reordered
+      socket.on("lessons-reordered", (reorderedLessons) => {
+        setLessons(reorderedLessons);
+      });
+    }
+
+    return () => {
+      if (socket && id) {
+        leaveCourse(id);
+        socket.off("lesson-added");
+        socket.off("lesson-updated");
+        socket.off("lesson-deleted");
+        socket.off("lessons-reordered");
+      }
+    };
+  }, [id, socket]);
 
   const fetchCourse = async () => {
     try {

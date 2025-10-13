@@ -14,6 +14,7 @@ import {
 import { getLessonById } from "../../services/lessonService";
 import { getLessonsByCourse } from "../../services/lessonService";
 import { AuthContext } from "../../context/AuthContext";
+import CommentSection from "../Comments/CommentSection";
 
 const LessonView = () => {
   const [lesson, setLesson] = useState(null);
@@ -321,6 +322,15 @@ const LessonView = () => {
               })}
             </ListGroup>
           </Card>
+        </Col>
+      </Row>
+      {/* Add Comment Section */}
+      <Row className="mt-4">
+        <Col lg={8}>
+          <CommentSection
+            lessonId={lessonId}
+            courseInstructorId={lesson?.course?.instructor?._id}
+          />
         </Col>
       </Row>
     </Container>
