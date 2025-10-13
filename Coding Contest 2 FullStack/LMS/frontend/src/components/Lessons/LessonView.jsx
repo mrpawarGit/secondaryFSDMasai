@@ -11,17 +11,25 @@ import {
   ListGroup,
   Badge,
 } from "react-bootstrap";
-import { getLessonById } from "../../services/lessonService";
-import { getLessonsByCourse } from "../../services/lessonService";
+import {
+  getLessonById,
+  getLessonsByCourse,
+} from "../../services/lessonService";
+import {
+  getCourseProgress,
+  markLessonComplete,
+  markLessonIncomplete,
+} from "../../services/progressService";
 import { AuthContext } from "../../context/AuthContext";
 import CommentSection from "../Comments/CommentSection";
 
 const LessonView = () => {
   const [lesson, setLesson] = useState(null);
   const [allLessons, setAllLessons] = useState([]);
+  const [progress, setProgress] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [isCompleted, setIsCompleted] = useState(false);
+  const [completionLoading, setCompletionLoading] = useState(false);
 
   const { lessonId } = useParams();
   const { user } = useContext(AuthContext);
@@ -40,13 +48,10 @@ const LessonView = () => {
       const lessonsData = await getLessonsByCourse(data.course._id);
       setAllLessons(lessonsData);
 
-      // Check if lesson is completed
+      // Fetch progress for students
       if (user?.role === "student") {
-        const completed = localStorage.getItem(`completed_${data.course._id}`);
-        if (completed) {
-          const completedArray = JSON.parse(completed);
-          setIsCompleted(completedArray.includes(lessonId));
-        }
+        const progressData = await getCourseProgress(data.course._id);
+        setProgress(progressData);
       }
     } catch (err) {
       setError(err.response?.data?.message || "Failed to fetch lesson");
@@ -55,37 +60,42 @@ const LessonView = () => {
     }
   };
 
-  const toggleComplete = () => {
-    if (user?.role === "student" && lesson) {
-      const storageKey = `completed_${lesson.course._id}`;
-      const completed = localStorage.getItem(storageKey);
-      let completedArray = completed ? JSON.parse(completed) : [];
+  const isLessonCompleted = () => {
+    if (!progress || !progress.completedLessons) return false;
+    const completedIds = progress.completedLessons.map((l) =>
+      typeof l === "string" ? l : l._id
+    );
+    return completedIds.includes(lessonId);
+  };
 
-      if (isCompleted) {
-        // Remove from completed
-        completedArray = completedArray.filter((id) => id !== lessonId);
+  const toggleComplete = async () => {
+    if (user?.role !== "student" || !lesson) return;
+
+    setCompletionLoading(true);
+    try {
+      if (isLessonCompleted()) {
+        const updatedProgress = await markLessonIncomplete(lessonId);
+        setProgress(updatedProgress);
       } else {
-        // Add to completed
-        completedArray.push(lessonId);
+        const updatedProgress = await markLessonComplete(lessonId);
+        setProgress(updatedProgress);
       }
-
-      localStorage.setItem(storageKey, JSON.stringify(completedArray));
-      setIsCompleted(!isCompleted);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to update progress");
+    } finally {
+      setCompletionLoading(false);
     }
   };
 
   const getEmbedUrl = (url) => {
-    // Convert YouTube watch URL to embed URL
     if (url.includes("youtube.com/watch")) {
       const videoId = url.split("v=")[1]?.split("&")[0];
       return `https://www.youtube.com/embed/${videoId}`;
     }
-    // Convert YouTube short URL to embed URL
     if (url.includes("youtu.be/")) {
       const videoId = url.split("youtu.be/")[1]?.split("?")[0];
       return `https://www.youtube.com/embed/${videoId}`;
     }
-    // Convert Vimeo URL to embed URL
     if (url.includes("vimeo.com/")) {
       const videoId = url.split("vimeo.com/")[1];
       return `https://player.vimeo.com/video/${videoId}`;
@@ -109,6 +119,14 @@ const LessonView = () => {
     if (currentIndex > 0) {
       navigate(`/lessons/${allLessons[currentIndex - 1]._id}`);
     }
+  };
+
+  const isLessonCompletedById = (id) => {
+    if (!progress || !progress.completedLessons) return false;
+    const completedIds = progress.completedLessons.map((l) =>
+      typeof l === "string" ? l : l._id
+    );
+    return completedIds.includes(id);
   };
 
   const currentIndex = getCurrentLessonIndex();
@@ -145,7 +163,11 @@ const LessonView = () => {
         </Col>
       </Row>
 
-      {error && <Alert variant="danger">{error}</Alert>}
+      {error && (
+        <Alert variant="danger" dismissible onClose={() => setError("")}>
+          {error}
+        </Alert>
+      )}
 
       <Row>
         <Col lg={8}>
@@ -186,10 +208,10 @@ const LessonView = () => {
                   </div>
                   {user?.role === "student" && (
                     <Badge
-                      bg={isCompleted ? "success" : "secondary"}
+                      bg={isLessonCompleted() ? "success" : "secondary"}
                       className="fs-6"
                     >
-                      {isCompleted ? (
+                      {isLessonCompleted() ? (
                         <>
                           <i className="bi bi-check-circle me-1"></i>
                           Completed
@@ -238,10 +260,23 @@ const LessonView = () => {
 
                   {user?.role === "student" && (
                     <Button
-                      variant={isCompleted ? "success" : "outline-success"}
+                      variant={
+                        isLessonCompleted() ? "success" : "outline-success"
+                      }
                       onClick={toggleComplete}
+                      disabled={completionLoading}
                     >
-                      {isCompleted ? (
+                      {completionLoading ? (
+                        <>
+                          <Spinner
+                            as="span"
+                            animation="border"
+                            size="sm"
+                            className="me-2"
+                          />
+                          Updating...
+                        </>
+                      ) : isLessonCompleted() ? (
                         <>
                           <i className="bi bi-check-circle-fill me-2"></i>
                           Mark as Incomplete
@@ -267,29 +302,34 @@ const LessonView = () => {
               </div>
             </Card.Body>
           </Card>
+
+          {/* Comment Section */}
+          <CommentSection
+            lessonId={lessonId}
+            courseInstructorId={
+              lesson?.course?.instructor?._id || lesson?.course?.instructor
+            }
+          />
         </Col>
 
         <Col lg={4}>
           <Card className="shadow-sm sticky-top" style={{ top: "20px" }}>
             <Card.Header>
-              <h6 className="mb-0">Course Lessons ({allLessons.length})</h6>
+              <h6 className="mb-0">
+                Course Lessons ({allLessons.length})
+                {progress && (
+                  <Badge bg="success" className="ms-2">
+                    {progress.completedLessons.length} completed
+                  </Badge>
+                )}
+              </h6>
             </Card.Header>
             <ListGroup
               variant="flush"
               style={{ maxHeight: "500px", overflowY: "auto" }}
             >
               {allLessons.map((l, index) => {
-                const completed =
-                  user?.role === "student" &&
-                  (() => {
-                    const saved = localStorage.getItem(
-                      `completed_${lesson.course._id}`
-                    );
-                    if (saved) {
-                      return JSON.parse(saved).includes(l._id);
-                    }
-                    return false;
-                  })();
+                const completed = isLessonCompletedById(l._id);
 
                 return (
                   <ListGroup.Item
@@ -322,15 +362,6 @@ const LessonView = () => {
               })}
             </ListGroup>
           </Card>
-        </Col>
-      </Row>
-      {/* Add Comment Section */}
-      <Row className="mt-4">
-        <Col lg={8}>
-          <CommentSection
-            lessonId={lessonId}
-            courseInstructorId={lesson?.course?.instructor?._id}
-          />
         </Col>
       </Row>
     </Container>

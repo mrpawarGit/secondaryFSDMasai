@@ -8,6 +8,7 @@ const authRoutes = require("./routes/authRoutes");
 const courseRoutes = require("./routes/courseRoutes");
 const lessonRoutes = require("./routes/lessonRoutes");
 const commentRoutes = require("./routes/commentRoutes");
+const progressRoutes = require("./routes/progressRoutes");
 
 // Load environment variables
 dotenv.config();
@@ -77,6 +78,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api", lessonRoutes);
 app.use("/api", commentRoutes);
+app.use("/api/progress", progressRoutes);
 
 // Test route
 app.get("/", (req, res) => {
