@@ -1,0 +1,4 @@
+PORT=YOUR_PORT
+MONGO_URI=mongodb://localhost:27017/coll-lmsDB
+JWT_SECRET=your_jwt_secret
+
