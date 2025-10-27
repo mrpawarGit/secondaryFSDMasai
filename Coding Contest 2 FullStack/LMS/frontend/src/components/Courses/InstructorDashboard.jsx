@@ -6,6 +6,7 @@ import {
   deleteCourse,
 } from "../../services/courseService";
 import CourseCard from "./CourseCard";
+import DashboardActivities from "../Activities/DashboardActivities";
 
 const InstructorDashboard = () => {
   const [courses, setCourses] = useState([]);
@@ -66,24 +67,34 @@ const InstructorDashboard = () => {
 
       {error && <Alert variant="danger">{error}</Alert>}
 
-      {courses.length === 0 ? (
-        <Alert variant="info">
-          You haven't created any courses yet. Click "Create New Course" to get
-          started!
-        </Alert>
-      ) : (
-        <Row xs={1} md={2} lg={3} className="g-4">
-          {courses.map((course) => (
-            <Col key={course._id}>
-              <CourseCard
-                course={course}
-                isInstructor={true}
-                onDelete={handleDelete}
-              />
-            </Col>
-          ))}
-        </Row>
-      )}
+      <Row>
+        <Col lg={8}>
+          {courses.length === 0 ? (
+            <Alert variant="info">
+              You haven't created any courses yet. Click "Create New Course" to
+              get started!
+            </Alert>
+          ) : (
+            <Row xs={1} md={2} className="g-4">
+              {courses.map((course) => (
+                <Col key={course._id}>
+                  <CourseCard
+                    course={course}
+                    isInstructor={true}
+                    onDelete={handleDelete}
+                  />
+                </Col>
+              ))}
+            </Row>
+          )}
+        </Col>
+
+        <Col lg={4}>
+          <div style={{ position: "sticky", top: "20px" }}>
+            <DashboardActivities />
+          </div>
+        </Col>
+      </Row>
     </Container>
   );
 };

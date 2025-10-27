@@ -22,10 +22,70 @@ import "./App.css";
 
 const Home = () => (
   <div className="container mt-5 text-center">
-    <h1>Welcome to Collaborative LMS</h1>
-    <p className="lead">
-      A real-time learning management system for instructors and students
-    </p>
+    <div className="row justify-content-center">
+      <div className="col-md-8">
+        <h1 className="display-4 mb-4">Welcome to Collaborative LMS</h1>
+        <p className="lead mb-4">
+          A real-time learning management system connecting instructors and
+          students for interactive, collaborative learning experiences.
+        </p>
+        <div className="d-flex gap-3 justify-content-center mb-5">
+          <a href="/courses" className="btn btn-primary btn-lg">
+            <i className="bi bi-collection me-2"></i>
+            Browse Courses
+          </a>
+          <a href="/signup" className="btn btn-outline-primary btn-lg">
+            <i className="bi bi-person-plus me-2"></i>
+            Get Started
+          </a>
+        </div>
+
+        <div className="row text-start mt-5">
+          <div className="col-md-4 mb-4">
+            <div className="card h-100 border-0 shadow-sm">
+              <div className="card-body">
+                <div className="mb-3">
+                  <i className="bi bi-lightning-charge-fill text-primary fs-1"></i>
+                </div>
+                <h5 className="card-title">Real-Time Collaboration</h5>
+                <p className="card-text">
+                  Engage with live updates, instant notifications, and real-time
+                  discussions.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-4 mb-4">
+            <div className="card h-100 border-0 shadow-sm">
+              <div className="card-body">
+                <div className="mb-3">
+                  <i className="bi bi-graph-up-arrow text-success fs-1"></i>
+                </div>
+                <h5 className="card-title">Track Your Progress</h5>
+                <p className="card-text">
+                  Monitor completion rates, view progress bars, and achieve your
+                  learning goals.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-4 mb-4">
+            <div className="card h-100 border-0 shadow-sm">
+              <div className="card-body">
+                <div className="mb-3">
+                  <i className="bi bi-chat-dots-fill text-info fs-1"></i>
+                </div>
+                <h5 className="card-title">Interactive Learning</h5>
+                <p className="card-text">
+                  Ask questions, share insights, and learn together through
+                  threaded discussions.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 );
 

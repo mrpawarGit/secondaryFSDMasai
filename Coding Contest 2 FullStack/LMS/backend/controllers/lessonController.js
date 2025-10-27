@@ -1,5 +1,7 @@
 const Lesson = require("../models/Lesson");
 const Course = require("../models/Course");
+const Activity = require("../models/Activity");
+const { createActivity } = require("./activityController");
 
 // @desc    Add a new lesson to a course
 // @route   POST /api/courses/:courseId/lessons
@@ -47,9 +49,28 @@ const addLesson = async (req, res) => {
     course.lessons.push(lesson._id);
     await course.save();
 
+    // Log activity
+    await createActivity(
+      courseId,
+      req.user._id,
+      "lesson_added",
+      `Added lesson "${title}"`,
+      "Lesson",
+      lesson._id,
+      { lessonTitle: title }
+    );
+
     // Emit real-time event
     const io = req.app.get("io");
     io.to(`course-${courseId}`).emit("lesson-added", lesson);
+
+    // Get the activity and emit it
+    const activity = await Activity.findOne({ targetId: lesson._id })
+      .populate("actor", "name email role")
+      .sort({ createdAt: -1 });
+    if (activity) {
+      io.to(`course-${courseId}`).emit("new-activity", activity);
+    }
 
     res.status(201).json(lesson);
   } catch (error) {
@@ -169,9 +190,31 @@ const updateLesson = async (req, res) => {
 
     const updatedLesson = await lesson.save();
 
+    // Log activity
+    await createActivity(
+      lesson.course._id,
+      req.user._id,
+      "lesson_updated",
+      `Updated lesson "${updatedLesson.title}"`,
+      "Lesson",
+      updatedLesson._id,
+      { lessonTitle: updatedLesson.title }
+    );
+
     // Emit real-time event
     const io = req.app.get("io");
     io.to(`course-${lesson.course._id}`).emit("lesson-updated", updatedLesson);
+
+    // Get the activity and emit it
+    const activity = await Activity.findOne({
+      targetId: updatedLesson._id,
+      action: "lesson_updated",
+    })
+      .populate("actor", "name email role")
+      .sort({ createdAt: -1 });
+    if (activity) {
+      io.to(`course-${lesson.course._id}`).emit("new-activity", activity);
+    }
 
     res.json(updatedLesson);
   } catch (error) {
@@ -204,6 +247,10 @@ const deleteLesson = async (req, res) => {
       });
     }
 
+    // Store lesson info before deletion
+    const lessonTitle = lesson.title;
+    const courseId = course._id;
+
     // Remove lesson from course's lessons array
     course.lessons = course.lessons.filter(
       (lessonId) => lessonId.toString() !== lesson._id.toString()
@@ -214,7 +261,7 @@ const deleteLesson = async (req, res) => {
     await lesson.deleteOne();
 
     // Reorder remaining lessons
-    const remainingLessons = await Lesson.find({ course: course._id }).sort({
+    const remainingLessons = await Lesson.find({ course: courseId }).sort({
       order: 1,
     });
     for (let i = 0; i < remainingLessons.length; i++) {
@@ -222,9 +269,31 @@ const deleteLesson = async (req, res) => {
       await remainingLessons[i].save();
     }
 
+    // Log activity
+    await createActivity(
+      courseId,
+      req.user._id,
+      "lesson_deleted",
+      `Deleted lesson "${lessonTitle}"`,
+      "Lesson",
+      null,
+      { lessonTitle }
+    );
+
     // Emit real-time event
     const io = req.app.get("io");
-    io.to(`course-${course._id}`).emit("lesson-deleted", req.params.id);
+    io.to(`course-${courseId}`).emit("lesson-deleted", req.params.id);
+
+    // Get the activity and emit it
+    const activity = await Activity.findOne({
+      course: courseId,
+      action: "lesson_deleted",
+    })
+      .populate("actor", "name email role")
+      .sort({ createdAt: -1 });
+    if (activity) {
+      io.to(`course-${courseId}`).emit("new-activity", activity);
+    }
 
     res.json({ message: "Lesson deleted successfully" });
   } catch (error) {
@@ -268,9 +337,31 @@ const reorderLessons = async (req, res) => {
     // Get updated lessons
     const lessons = await Lesson.find({ course: courseId }).sort({ order: 1 });
 
+    // Log activity
+    await createActivity(
+      courseId,
+      req.user._id,
+      "lesson_reordered",
+      `Reordered lessons`,
+      "Course",
+      courseId,
+      { lessonCount: lessons.length }
+    );
+
     // Emit real-time event
     const io = req.app.get("io");
     io.to(`course-${courseId}`).emit("lessons-reordered", lessons);
+
+    // Get the activity and emit it
+    const activity = await Activity.findOne({
+      course: courseId,
+      action: "lesson_reordered",
+    })
+      .populate("actor", "name email role")
+      .sort({ createdAt: -1 });
+    if (activity) {
+      io.to(`course-${courseId}`).emit("new-activity", activity);
+    }
 
     res.json({ message: "Lessons reordered successfully", lessons });
   } catch (error) {

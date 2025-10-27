@@ -23,6 +23,7 @@ import { getLessonsByCourse } from "../../services/lessonService";
 import { getCourseProgress } from "../../services/progressService";
 import { SocketContext } from "../../context/SocketContext";
 import { AuthContext } from "../../context/AuthContext";
+import ActivityFeed from "../Activities/ActivityFeed";
 
 const CourseDetail = () => {
   const [course, setCourse] = useState(null);
@@ -386,7 +387,11 @@ const CourseDetail = () => {
         </Col>
 
         <Col lg={4}>
-          <Card className="shadow-sm sticky-top" style={{ top: "20px" }}>
+          {/* Course Information Card */}
+          <Card
+            className="shadow-sm mb-3"
+            style={{ position: "sticky", top: "20px" }}
+          >
             <Card.Body>
               <h5 className="mb-3">Course Information</h5>
 
@@ -532,6 +537,13 @@ const CourseDetail = () => {
               )}
             </Card.Body>
           </Card>
+
+          {/* Activity Feed - Only show if user can view lessons */}
+          {canViewLessons && (
+            <div style={{ position: "sticky", top: "20px" }}>
+              <ActivityFeed courseId={id} />
+            </div>
+          )}
         </Col>
       </Row>
     </Container>

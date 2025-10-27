@@ -1,6 +1,8 @@
 const Comment = require("../models/Comment");
 const Lesson = require("../models/Lesson");
 const Course = require("../models/Course");
+const Activity = require("../models/Activity");
+const { createActivity } = require("./activityController");
 
 // @desc    Add a comment to a lesson
 // @route   POST /api/lessons/:lessonId/comments
@@ -50,9 +52,32 @@ const addComment = async (req, res) => {
     // Populate user info
     await comment.populate("user", "name email role");
 
+    // Log activity (only for top-level comments, not replies)
+    if (!parentCommentId) {
+      await createActivity(
+        lesson.course._id,
+        req.user._id,
+        "comment_added",
+        `Added a comment on "${lesson.title}"`,
+        "Comment",
+        comment._id,
+        { lessonTitle: lesson.title, commentMessage: message.substring(0, 50) }
+      );
+    }
+
     // Emit real-time event
     const io = req.app.get("io");
     io.to(`lesson-${lessonId}`).emit("new-comment", comment);
+
+    // Emit activity to course room (only for top-level comments)
+    if (!parentCommentId) {
+      const activity = await Activity.findOne({ targetId: comment._id })
+        .populate("actor", "name email role")
+        .sort({ createdAt: -1 });
+      if (activity) {
+        io.to(`course-${lesson.course._id}`).emit("new-activity", activity);
+      }
+    }
 
     res.status(201).json(comment);
   } catch (error) {
@@ -136,6 +161,13 @@ const deleteComment = async (req, res) => {
       });
     }
 
+    // Store comment info before deletion
+    const commentMessage = comment.message.substring(0, 50);
+    const lessonId = comment.lesson._id;
+    const lessonTitle = comment.lesson.title || "Unknown";
+    const courseId = comment.lesson.course._id;
+    const isTopLevelComment = !comment.parentComment;
+
     // Delete all replies to this comment recursively
     const deleteReplies = async (commentId) => {
       const replies = await Comment.find({ parentComment: commentId });
@@ -157,9 +189,35 @@ const deleteComment = async (req, res) => {
     // Delete the comment itself
     await comment.deleteOne();
 
+    // Log activity (only for top-level comments)
+    if (isTopLevelComment) {
+      await createActivity(
+        courseId,
+        req.user._id,
+        "comment_deleted",
+        `Deleted a comment on "${lessonTitle}"`,
+        "Comment",
+        null,
+        { lessonTitle, commentMessage }
+      );
+    }
+
     // Emit real-time event
     const io = req.app.get("io");
-    io.to(`lesson-${comment.lesson._id}`).emit("delete-comment", commentId);
+    io.to(`lesson-${lessonId}`).emit("delete-comment", commentId);
+
+    // Emit activity to course room (only for top-level comments)
+    if (isTopLevelComment) {
+      const activity = await Activity.findOne({
+        course: courseId,
+        action: "comment_deleted",
+      })
+        .populate("actor", "name email role")
+        .sort({ createdAt: -1 });
+      if (activity) {
+        io.to(`course-${courseId}`).emit("new-activity", activity);
+      }
+    }
 
     res.json({ message: "Comment deleted successfully" });
   } catch (error) {
@@ -180,7 +238,10 @@ const updateComment = async (req, res) => {
       return res.status(400).json({ message: "Please provide a message" });
     }
 
-    const comment = await Comment.findById(commentId);
+    const comment = await Comment.findById(commentId).populate({
+      path: "lesson",
+      populate: { path: "course" },
+    });
 
     if (!comment) {
       return res.status(404).json({ message: "Comment not found" });
@@ -200,10 +261,10 @@ const updateComment = async (req, res) => {
 
     // Emit real-time event
     const io = req.app.get("io");
-    io.to(`lesson-${comment.lesson}`).emit("update-comment", comment);
+    io.to(`lesson-${comment.lesson._id}`).emit("update-comment", comment);
 
     res.json(comment);
-  } catch (err) {
+  } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error", error: error.message });
   }

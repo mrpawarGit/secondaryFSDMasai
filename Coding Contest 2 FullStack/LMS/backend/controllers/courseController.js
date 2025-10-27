@@ -1,6 +1,8 @@
 const Course = require("../models/Course");
 const User = require("../models/User");
 const Lesson = require("../models/Lesson");
+const Activity = require("../models/Activity");
+const { createActivity } = require("./activityController");
 
 // @desc    Create a new course
 // @route   POST /api/courses
@@ -154,6 +156,29 @@ const updateCourse = async (req, res) => {
       "name email"
     );
 
+    // Log activity
+    await createActivity(
+      updatedCourse._id,
+      req.user._id,
+      "course_updated",
+      `Updated course details`,
+      "Course",
+      updatedCourse._id,
+      { courseTitle: updatedCourse.title }
+    );
+
+    // Emit activity to course room
+    const io = req.app.get("io");
+    const activity = await Activity.findOne({
+      course: updatedCourse._id,
+      action: "course_updated",
+    })
+      .populate("actor", "name email role")
+      .sort({ createdAt: -1 });
+    if (activity) {
+      io.to(`course-${updatedCourse._id}`).emit("new-activity", activity);
+    }
+
     res.json(populatedCourse);
   } catch (error) {
     console.error(error);
@@ -236,6 +261,30 @@ const enrollInCourse = async (req, res) => {
       $push: { enrolledCourses: course._id },
     });
 
+    // Log activity
+    await createActivity(
+      course._id,
+      req.user._id,
+      "student_enrolled",
+      `Enrolled in the course`,
+      "User",
+      req.user._id,
+      { userName: req.user.name }
+    );
+
+    // Emit activity to course room
+    const io = req.app.get("io");
+    const activity = await Activity.findOne({
+      course: course._id,
+      actor: req.user._id,
+      action: "student_enrolled",
+    })
+      .populate("actor", "name email role")
+      .sort({ createdAt: -1 });
+    if (activity) {
+      io.to(`course-${course._id}`).emit("new-activity", activity);
+    }
+
     res.json({ message: "Successfully enrolled in course", course });
   } catch (error) {
     console.error(error);
@@ -259,6 +308,10 @@ const unenrollFromCourse = async (req, res) => {
       return res.status(400).json({ message: "Not enrolled in this course" });
     }
 
+    // Store user name before unenrolling
+    const userName = req.user.name;
+    const courseId = course._id;
+
     // Remove student from course
     course.students = course.students.filter(
       (studentId) => studentId.toString() !== req.user._id.toString()
@@ -269,6 +322,29 @@ const unenrollFromCourse = async (req, res) => {
     await User.findByIdAndUpdate(req.user._id, {
       $pull: { enrolledCourses: course._id },
     });
+
+    // Log activity
+    await createActivity(
+      courseId,
+      req.user._id,
+      "student_unenrolled",
+      `Unenrolled from the course`,
+      "User",
+      null,
+      { userName }
+    );
+
+    // Emit activity to course room
+    const io = req.app.get("io");
+    const activity = await Activity.findOne({
+      course: courseId,
+      action: "student_unenrolled",
+    })
+      .populate("actor", "name email role")
+      .sort({ createdAt: -1 });
+    if (activity) {
+      io.to(`course-${courseId}`).emit("new-activity", activity);
+    }
 
     res.json({ message: "Successfully unenrolled from course" });
   } catch (error) {
